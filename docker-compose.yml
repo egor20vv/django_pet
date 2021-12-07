@@ -1,8 +1,20 @@
 services:
   web:
-    build: .
+    build: ./app
     env_file:
       - .env
-    command: python manage.py runserver 0.0.0.0:8000
     ports:
-      - "5000:8000"
+      - 80:${PORT}
+    expose:
+      - ${PORT}
+    volumes:
+      - web-django:/usr/src/app
+    command: >
+      gunicorn
+        app.asgi:application
+        -k uvicorn.workers.UvicornWorker
+        -b :${PORT}
+        --timeout 60
+
+volumes:
+  web-django:
