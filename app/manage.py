@@ -4,6 +4,14 @@ import os
 import sys
 
 
+def load_env_vars_from_file():
+    from dotenv import load_dotenv
+    from pathlib import Path
+
+    dotenv_path = Path(str(Path(__file__).resolve().parent.parent) + '/.env')
+    load_dotenv(dotenv_path=dotenv_path)
+
+
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')
@@ -19,4 +27,6 @@ def main():
 
 
 if __name__ == '__main__':
+    if not ('DOCKER' in os.environ and os.environ['DOCKER'] == 0):
+        load_env_vars_from_file()
     main()
