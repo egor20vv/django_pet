@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
+from django.utils import timezone
 
 from .models import Question, Choice
 
@@ -12,12 +13,19 @@ class IndexView(generic.ListView):
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
-        return Question.objects.order_by('-pub_data')[:5]
+        return Question.objects \
+            .filter(pub_data__lte=timezone.now()) \
+            .order_by('-pub_data')[:5]
 
 
 class DetailView(generic.DetailView):
     template_name = 'polls/details.html'
     model = Question
+
+    def get_queryset(self):
+        return Question.objects \
+            .filter(pub_data__lte=timezone.now())
+
 
 
 class ResultView(generic.DetailView):
@@ -25,8 +33,8 @@ class ResultView(generic.DetailView):
     model = Question
 
 
-def vote(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
+def vote(request, pk):
+    question = get_object_or_404(Question, pk=pk)
     try:
         selected_choice = question.choice_set.get(pk=request.POST['choice'])
     except (KeyError, Choice.DoesNotExist):
