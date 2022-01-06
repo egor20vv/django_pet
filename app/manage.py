@@ -27,6 +27,6 @@ def main():
 
 
 if __name__ == '__main__':
-    if not ('DOCKER' in os.environ and os.environ['DOCKER'] == 0):
+    if not ('DOCKER' in os.environ and os.environ['DOCKER'] != 0):
         load_env_vars_from_file()
     main()

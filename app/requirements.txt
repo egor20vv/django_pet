@@ -1,1 +1,4 @@
 Django~=3.2.9
+Uvicorn~=0.16.0
+Gunicorn~=20.1.0
+python-dotenv~=0.19.2

@@ -1,20 +1,45 @@
 services:
-  web:
+
+  db_init:
+    image: ubuntu:18.04
+    volumes:
+      - db:/db
+      - ./db:/default_db
+    command: cp default_db/db.sqlite3 db/db.sqlite3
+    tty: true
+
+  base_web:
     build: ./app
+    volumes:
+      - db:/home/db
     env_file:
       - .env
+    environment:
+      - DOCKER=1
+    working_dir: /home/app
+    tty: true
+
+  db_migrate:
+    extends:
+      service: base_web
+    command:
+      python manage.py migrate &&
+      python manage.py makemigrations polls &&
+      python manage.py migrate
+
+  web_run:
+    extends:
+      service: base_web
     ports:
-      - 80:${PORT}
+      - 80:80
     expose:
-      - ${PORT}
-    volumes:
-      - web-django:/usr/src/app
+      - 80
     command: >
       gunicorn
         app.asgi:application
         -k uvicorn.workers.UvicornWorker
-        -b :${PORT}
+        -b :80
         --timeout 60
 
 volumes:
-  web-django:
+  db:
